@@ -20,7 +20,7 @@ This project implements a Finite Impulse Response (FIR) filter in C. It includes
 ### Building the Project
 1. Clone the repository:
     ```sh
-    git clone <repository-url>
+    git clone https://github.com/AsmanHud/fir_filter.git
     cd FIR_Filter_Project
     ```
 
