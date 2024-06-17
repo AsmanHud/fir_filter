@@ -1,0 +1,33 @@
+# Compiled object files
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug files
+*.dSYM/
+
+# CLion-specific
+.idea/
+cmake-build-debug*/
+cmake-build-release/
+.DS_Store
+
+# Google Test specific
+googletest/
