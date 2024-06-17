@@ -79,8 +79,8 @@ To run the unit tests, execute:
 ```
 
 ## Code Structure
-- `src/fir_filter.c` / `src/fir_filter.h`: FIR filter implementation.
-- `src/fir_filter_cli.c` / `src/fir_filter_cli.h`: CLI implementation.
+- `src/fir_filter.c` / `include/fir_filter.h`: FIR filter implementation.
+- `src/fir_filter_cli.c` / `include/fir_filter_cli.h`: CLI implementation.
 - `src/main.c`: Entry point for the CLI.
 - `tests/fir_filter_tests.cpp`: Unit tests for the FIR filter.
 - `CMakeLists.txt`: CMake build configuration.
