@@ -15,26 +15,34 @@ This project implements a Finite Impulse Response (FIR) filter in C. It includes
 - CMake 3.22.1 or higher
 - A C compiler (GCC, Clang, etc.)
 - A C++ compiler for running tests
-- Google Test for unit tests
 
 ### Building the Project
 1. Clone the repository:
     ```sh
     git clone https://github.com/AsmanHud/fir_filter.git
-    cd FIR_Filter_Project
+    cd fir_filter
     ```
 
-2. Create a build directory and run CMake:
+2. Download the Google test for running tests into the project folder:
+    ```sh
+    git clone https://github.com/google/googletest.git
+    ```
+
+3. Create a build directory and run CMake:
     ```sh
     mkdir build
     cd build
     cmake ..
     ```
 
-3. Build the project:
+4. Build the project:
     ```sh
     make
     ```
+   or if you don't have make
+   ```sh
+   cmake --build .
+   ```
 
 ### Running the CLI
 The CLI provides three main commands: `create`, `apply`, and `destroy`.

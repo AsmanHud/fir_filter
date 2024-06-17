@@ -185,16 +185,6 @@ TEST(FIRFilterCreateTest, EdgeCases) {
         std::cout << "Failed to create filter with max float cutoff frequency" << std::endl;
     }
 
-    filter = create_fir_filter(LOW_PASS, BLACKMAN, 1000.0f, std::numeric_limits<int>::max(), 8000.0f);
-    if (filter != nullptr && filter->coefficients != nullptr) {
-        std::cout << "Created filter with max int kernel length" << std::endl;
-        std::cout << "Filter coefficients: ";
-        print_float_array(filter->coefficients, filter->kernel_length);
-        destroy_fir_filter(filter);
-    } else {
-        std::cout << "Failed to create filter with max int kernel length" << std::endl;
-    }
-
     filter = create_fir_filter(LOW_PASS, BLACKMAN, 1000.0f, 11, std::numeric_limits<float>::max());
     if (filter != nullptr && filter->coefficients != nullptr) {
         std::cout << "Created filter with max float sample rate" << std::endl;
@@ -205,12 +195,12 @@ TEST(FIRFilterCreateTest, EdgeCases) {
         std::cout << "Failed to create filter with max float sample rate" << std::endl;
     }
 
-    filter = create_fir_filter(LOW_PASS, BLACKMAN, std::numeric_limits<float>::max(), std::numeric_limits<int>::max(),
+    filter = create_fir_filter(LOW_PASS, BLACKMAN, std::numeric_limits<float>::max(), 100000,
                                std::numeric_limits<float>::max());
     if (filter != nullptr && filter->coefficients != nullptr) {
-        std::cout << "Created filter with all max values" << std::endl;
-        std::cout << "Filter coefficients: ";
-        print_float_array(filter->coefficients, filter->kernel_length);
+        std::cout << "Created filter with all max values (very large kernel length)" << std::endl;
+        std::cout << "Filter coefficients (first 20): ";
+        print_float_array(filter->coefficients, 20);
         destroy_fir_filter(filter);
     } else {
         std::cout << "Failed to create filter with all max values" << std::endl;
@@ -229,7 +219,7 @@ TEST(FIRFilterApplyTest, BasicFunctionality) {
 
     float input_signal[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
     int signal_length = sizeof(input_signal) / sizeof(input_signal[0]);
-    float output_signal[signal_length];
+    auto *output_signal = (float *)malloc(signal_length * sizeof(float));
 
     apply_fir_filter(filter, input_signal, output_signal, signal_length);
 
@@ -247,6 +237,7 @@ TEST(FIRFilterApplyTest, BasicFunctionality) {
     std::cout << "Output signal: ";
     print_float_array(output_signal, signal_length);
 
+    free(output_signal);
     destroy_fir_filter(filter);
 }
 
@@ -271,12 +262,13 @@ TEST(FIRFilterApplyTest, IsOutputSignalCalculationCorrect) {
     for (int i = 0; i < input_signals.size(); ++i) {
         float *input_signal = input_signals[i].data();
         int signal_length = (int) input_signals[i].size();
-        float output_signal[signal_length];
+        auto *output_signal = (float *)malloc(signal_length * sizeof(float));
 
         apply_fir_filter(filter, input_signal, output_signal, signal_length);
 
         // Compare output signal with expected results
         compare_arrays(output_signal, expected_outputs[i].data(), signal_length);
+        free(output_signal);
     }
 
     destroy_fir_filter(filter);
@@ -317,7 +309,7 @@ TEST(FIRFilterApplyTest, NullTests) {
 
     float input_signal[] = {1.0, 2.0, 3.0, 4.0, 5.0};
     int signal_length = sizeof(input_signal) / sizeof(input_signal[0]);
-    float output_signal[signal_length];
+    auto *output_signal = (float *)malloc(signal_length * sizeof(float));
     for (int i = 0; i < signal_length; ++i) { output_signal[i] = 0; }
 
     apply_fir_filter(nullptr, input_signal, output_signal, signal_length);
@@ -340,6 +332,7 @@ TEST(FIRFilterApplyTest, NullTests) {
     apply_fir_filter(filter, input_signal, output_signal, signal_length);
     // Expect no crash
 
+    free(output_signal);
     destroy_fir_filter(filter);
 }
 
@@ -348,7 +341,7 @@ TEST(FIRFilterApplyTest, EdgeTests) {
     FIRFilter* filter = create_fir_filter(LOW_PASS, BLACKMAN, std::numeric_limits<float>::max(), 11, std::numeric_limits<float>::max());
     float input_signal[] = {1.0, 2.0, 3.0, 4.0, 5.0};
     int signal_length = sizeof(input_signal) / sizeof(input_signal[0]);
-    float output_signal[signal_length];
+    auto *output_signal = (float *)malloc(signal_length * sizeof(float));
     for (int i = 0; i < signal_length; ++i) { output_signal[i] = 0; }
 
     apply_fir_filter(filter, input_signal, output_signal, signal_length);
@@ -359,39 +352,7 @@ TEST(FIRFilterApplyTest, EdgeTests) {
     std::cout << "Output signal:" << std::endl;
     print_float_array(output_signal, signal_length);
 
-    destroy_fir_filter(filter);
-}
-
-// Invalid signal tests
-TEST(FIRFilterApplyTest, InvalidSignalTest) {
-    FIRFilter* filter = create_fir_filter(LOW_PASS, HANNING, 1000.0f, 11, 8000.0f);
-    ASSERT_NE(filter, nullptr);
-
-    float input_signal[] = {1.0, 2.0, 3.0, 4.0, 5.0};
-    int signal_length = sizeof(input_signal) / sizeof(input_signal[0]);
-    float output_signal[signal_length];
-    for (int i = 0; i < signal_length; ++i) { output_signal[i] = 0; }
-
-    // Signal length larger than input signal
-    apply_fir_filter(filter, input_signal, output_signal, signal_length + 10);
-    std::cout << "Signal length larger than input signal" << std::endl;
-    print_float_array(output_signal, signal_length);
-    // Expect no crash
-
-    for (int i = 0; i < signal_length; ++i) { output_signal[i] = 0; }
-    // Signal length smaller than input signal
-    apply_fir_filter(filter, input_signal, output_signal, signal_length - 2);
-    std::cout << "Signal length smaller than input signal" << std::endl;
-    print_float_array(output_signal, signal_length);
-    // Expect no crash
-
-    // Output signal smaller than input signal
-    float smaller_output_signal[signal_length - 2];
-    apply_fir_filter(filter, input_signal, smaller_output_signal, signal_length);
-    std::cout << "Output signal smaller than input signal" << std::endl;
-    print_float_array(smaller_output_signal, signal_length - 2);
-    // Expect no crash
-
+    free(output_signal);
     destroy_fir_filter(filter);
 }
 

@@ -3,6 +3,10 @@
 #include <math.h>
 #include "fir_filter.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #define BESSEL_FUNCTION_APPROXIMATION 25
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
