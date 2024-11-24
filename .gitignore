@@ -20,6 +20,9 @@
 *.out
 *.app
 
+# Build dir
+build
+
 # Debug files
 *.dSYM/
 
